@@ -1,3 +1,4 @@
+import javax.print.attribute.HashPrintJobAttributeSet;
 import java.util.*;
 
 public class GraphTemplate {
@@ -218,83 +219,166 @@ public class GraphTemplate {
     }
 
 
-//    //单元最短路径算法 Dijkstra 没有累加和权值为负数的环
-//    public static HashMap<Node, Integer> dijkstra(Node head){
-//        //从head出发到所有点的最小距离
-//        //Key : 从head出发到key
-//        //value ： 从head出发到达Key的最小距离
-//        //如果在表中，没有T的记录，含义是从head出发到T这个点的距离为正无穷
-//        HashMap<Node, Integer> distanceMap = new HashMap<>();
-//        distanceMap.put(head, 0);
-//        HashSet<Node> selectedNodes = new HashSet<>();
-//        Node minNode = getMinDistanceAndUnselectedNode(distanceMap, selectedNodes);
-//        while (minNode != null){
-//            int distance = distanceMap.get(minNode);
-//            for (Edge e : minNode.edges) {
-//                Node toNode = e.to;
-//                if (!distanceMap.containsKey(toNode)){
-//                    distanceMap.put(toNode,distance + e.weight);
-//                }
-//                distanceMap.put(e.to, Math.min(distanceMap.get(toNode),distance + e.weight));
-//            }
-//            selectedNodes.add(minNode);
-//            minNode = getMinDistanceAndUnselectedNode(distanceMap, selectedNodes);
-//        }
-//        return distanceMap;
-//    }
-//
-//    public static Node getMinDistanceAndUnselectedNode(
-//            HashMap<Node, Integer> distanceMap,
-//            HashSet<Node> touchedNodes){
-//        Node minNode = null;
-//        int minDistance = Integer.MAX_VALUE;
-//        for (Map.Entry<Node, Integer> entry: distanceMap.entrySet()){
-//            Node node = entry.getKey();
-//            int distance = entry.getValue();
-//            if (!touchedNodes.contains(node) && distance < minDistance){
-//                minNode = node;
-//                minDistance = distance;
-//            }
-//        }
-//        return minNode;
-//    }
-
-
+    //单元最短路径算法 Dijkstra 没有累加和权值为负数的环
     public static HashMap<Node, Integer> dijkstra(Node head){
+        //从head出发到所有点的最小距离
+        //Key : 从head出发到key
+        //value ： 从head出发到达Key的最小距离
+        //如果在表中，没有T的记录，含义是从head出发到T这个点的距离为正无穷
         HashMap<Node, Integer> distanceMap = new HashMap<>();
-        HashSet<Node> selectedNodes = new HashSet<>();
         distanceMap.put(head, 0);
-        Node minNode = getNode(distanceMap, selectedNodes);
+        HashSet<Node> selectedNodes = new HashSet<>();
+        Node minNode = getMinDistanceAndUnselectedNode(distanceMap, selectedNodes);
         while (minNode != null){
             int distance = distanceMap.get(minNode);
-            for (Edge edge: minNode.edges
-                 ) {
-                Node toNode = edge.to;
-                if (!selectedNodes.contains(toNode)){
-                    distanceMap.put(toNode, distance + edge.weight);
+            for (Edge e : minNode.edges) {
+                Node toNode = e.to;
+                if (!distanceMap.containsKey(toNode)){
+                    distanceMap.put(toNode,distance + e.weight);
                 }
-                distanceMap.put(toNode,Math.min(distanceMap.get(toNode),distance + edge.weight));
+                distanceMap.put(e.to, Math.min(distanceMap.get(toNode),distance + e.weight));
             }
             selectedNodes.add(minNode);
-            minNode = getNode(distanceMap,selectedNodes);
+            minNode = getMinDistanceAndUnselectedNode(distanceMap, selectedNodes);
         }
         return distanceMap;
     }
 
-    public static Node getNode(HashMap<Node, Integer> distanceMap, HashSet<Node> selectedNode){
+    public static Node getMinDistanceAndUnselectedNode(
+            HashMap<Node, Integer> distanceMap,
+            HashSet<Node> touchedNodes){
         Node minNode = null;
         int minDistance = Integer.MAX_VALUE;
-        for (Map.Entry<Node, Integer> entry: distanceMap.entrySet()
-             ) {
-            Node curNode = entry.getKey();
+        for (Map.Entry<Node, Integer> entry: distanceMap.entrySet()){
+            Node node = entry.getKey();
             int distance = entry.getValue();
-            if (!selectedNode.contains(curNode) && distance < minDistance){
-                minNode = curNode;
+            if (!touchedNodes.contains(node) && distance < minDistance){
+                minNode = node;
                 minDistance = distance;
             }
         }
         return minNode;
     }
+
+    public static class NodeRecord {
+        public Node node;
+        public int distance;
+
+        public NodeRecord(Node node, int distance) {
+            this.node = node;
+            this.distance = distance;
+        }
+    }
+
+    public static class NodeHeap {
+        private Node[] nodes;
+        private HashMap<Node, Integer> heapIndexMap;
+        private HashMap<Node, Integer> distanceMap;
+        private int size;
+
+        public NodeHeap(int size) {
+            nodes = new Node[size];
+            heapIndexMap = new HashMap<>();
+            distanceMap = new HashMap<>();
+            size = 0;
+        }
+
+        public boolean isEmpty() {
+            return size == 0;
+        }
+
+        //有一个点node，现在发现了一个从源节点出发到node的距离为distance
+        //判断要不要更新，如果要就更新
+        public void addOrUpdateOrIgnore(Node node, int distance) {
+            //update
+            if (inHeap(node)) {
+                distanceMap.put(node, Math.min(distanceMap.get(node),distance));
+                insertHeapity(node,heapIndexMap.get(node));
+            }
+            //add
+            if (!isEntered(node)) {
+                nodes[size] = node;
+                heapIndexMap.put(node, size);
+                distanceMap.put(node, distance);
+                insertHeapity(node, size++);
+            }
+            //ignore
+        }
+
+        public NodeRecord pop() {
+            NodeRecord nodeRecord = new NodeRecord(nodes[0], distanceMap.get(nodes[0]));
+            swap(0, size - 1);
+            heapIndexMap.put(nodes[size - 1], -1);
+            distanceMap.remove(nodes[size - 1]);
+            nodes[size - 1] = null;
+            heapity(0, --size);
+            return nodeRecord;
+        }
+
+
+        private void insertHeapity(Node node, int index) {
+            while (distanceMap.get(nodes[index])<distanceMap.get(nodes[(index-1)/2])) {
+                swap(index, (index - 1)/2);
+                index = (index - 1)/2;
+            }
+        }
+
+        private void heapity(int index, int size) {
+            int left = index * 2 + 1;
+            while (left < size) {
+                int smallest = left + 1 < size &&
+                        distanceMap.get(nodes[left]) > distanceMap.get(nodes[left + 1]) ? left + 1 : left;
+                smallest = distanceMap.get(nodes[smallest]) > distanceMap.get(nodes[index]) ? index : smallest;
+                if (smallest == index) {
+                    break;
+                }
+                swap(index, smallest);
+                index = smallest;
+                left = index * 2 + 1;
+            }
+        }
+
+        private boolean isEntered(Node node) {
+            return heapIndexMap.containsKey(node);
+        }
+
+        private boolean inHeap(Node node) {
+            return isEntered(node) && heapIndexMap.get(node) != -1;
+        }
+
+
+        private void swap(int index1, int index2) {
+            heapIndexMap.put(nodes[index1],index2);
+            heapIndexMap.put(nodes[index2],index1);
+            Node temp = nodes[index1];
+            nodes[index2] = nodes[index1];
+            nodes[index1] = temp;
+        }
+
+
+
+
+    }
+
+    //improved dijkstra by using a special heap
+    public static HashMap<Node, Integer> dijkstra2(Node head, int size) {
+        NodeHeap nodeHeap = new NodeHeap(size);
+        nodeHeap.addOrUpdateOrIgnore(head, 0);
+        HashMap<Node, Integer> result = new HashMap<>();
+        while (!nodeHeap.isEmpty()) {
+            NodeRecord record = nodeHeap.pop();
+            Node cur = record.node;
+            int distance = record.distance;
+            for (Edge edge: cur.edges) {
+                nodeHeap.addOrUpdateOrIgnore(edge.to, edge.weight + distance);
+            }
+            result.put(cur, distance);
+        }
+        return result;
+    }
+
+
+
 
 
 
