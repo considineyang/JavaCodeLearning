@@ -355,9 +355,6 @@ public class GraphTemplate {
             nodes[index1] = temp;
         }
 
-
-
-
     }
 
     //improved dijkstra by using a special heap
@@ -376,8 +373,6 @@ public class GraphTemplate {
         }
         return result;
     }
-
-
 
 
 
