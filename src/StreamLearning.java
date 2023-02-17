@@ -9,9 +9,18 @@ public class StreamLearning {
                 .forEach(e -> System.out.print(e+ "  "));
 
         System.out.println();
+        System.out.println("====================================");
         Stream.of(names).skip(4)
                 .sorted(String::compareToIgnoreCase)
-                .forEach(e -> System.out.print(e + "    "));
+                .forEach(
+                        new java.util.function.Consumer<String>(){
+                            public void accept(String e) {
+                                System.out.println(e + "  ");
+                            }
+                        }
+                );
+
+        System.out.println("====================================");
 
         System.out.println();
         System.out.println("Largest string with length > 4\n" + Stream.of(names).filter(e -> e.length()>4)
