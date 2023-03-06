@@ -1,0 +1,4 @@
+daniel,INFO1110,98
+sam,INFO1110,95
+daniel,COMP2123,90
+sam,COMP9003,85
