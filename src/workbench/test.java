@@ -1,12 +1,16 @@
 package workbench;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
 public class test {
     public static void main(String[] args) {
-        double[] array = new double[10];
-        for(int i = 0; i< 10;i++){
-            array[i] = ((i%2)/2.0-0.5)*(-1)-((i%4+1 - i%4)-(i%4+1)/2+(i%4+1)/4);
-            System.out.println(array[i]);
-        }
-        System.out.println(-0.0 == 0.0);
+        ArrayList<Integer> arrayList = new ArrayList<>();
+        arrayList.add(1);
+        arrayList.add(4);
+        System.out.println(arrayList.size());
+        System.out.println(arrayList.get(0));
+        System.out.println(arrayList.get(1));
     }
 }

@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CountKeywordStream {
@@ -32,7 +33,9 @@ public class CountKeywordStream {
         Set<String> keywordSet =
                 new HashSet<>(Arrays.asList(keywordString));
 
-        return Files.lines(file.toPath()).parallel().mapToLong(line -> Stream.of(line.split("[\\s++]")).filter(word -> keywordSet.contains(word)).count()).sum();
+        // return sum of keywords
+        return Files.lines(file.toPath()).parallel().mapToLong(line -> Stream.of(line.split("[\\s++]"))
+                .filter(word -> keywordSet.contains(word)).count()).sum();
     }
 
 
