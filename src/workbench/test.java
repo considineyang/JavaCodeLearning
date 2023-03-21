@@ -6,11 +6,10 @@ import java.util.HashMap;
 
 public class test {
     public static void main(String[] args) {
-        ArrayList<Integer> arrayList = new ArrayList<>();
-        arrayList.add(1);
-        arrayList.add(4);
-        System.out.println(arrayList.size());
-        System.out.println(arrayList.get(0));
-        System.out.println(arrayList.get(1));
+
+        System.out.println( new String("Java") == "Java");//1
+        System.out.println(new String("Java") == new String("Java"));// 2
+        System.out.println(new String("Java").equals("Java")); // 3
+
     }
 }
